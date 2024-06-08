@@ -12,6 +12,7 @@ public class ClientHandler implements Runnable { // this class will handle the c
     private BufferedReader bufferedReader;
     private String userName;
 
+    //-----------------------------------------Constructor-------------------------------------------
     public ClientHandler (Socket socket) {
         try{
             this.socket = socket;
@@ -29,15 +30,31 @@ public class ClientHandler implements Runnable { // this class will handle the c
             closeAll(socket , bufferedWriter , bufferedReader);
         }
     }
+    //-----------------------------------------Constructor-------------------------------------------
 
+
+    //-----------------------------------------Thread's Job-------------------------------------------
     @Override
-    public void run() {
+    public void run() { //this is what threads should do
+        String message;
 
+        while (socket.isConnected()) {
+            try {
+                message = bufferedReader.readLine();
+                sendMessages(message);
+            }catch (IOException e) {
+                closeAll(socket , bufferedWriter , bufferedReader);
+                break;
+            }
+        }
     }
+    //-----------------------------------------Thread's Job-------------------------------------------
 
+
+    //---------------------------------------To Send Messages-------------------------------------------
     public void sendMessages (String message) {
-        try {
-            for (ClientHandler clientHandler : clientHandlers) {
+        for (ClientHandler clientHandler : clientHandlers) {
+            try {
                 if (!clientHandler.userName.equals(userName)) {
                     clientHandler.bufferedWriter.write(message); // in this line we are write the message inside the buffer
                     clientHandler.bufferedWriter.newLine(); // in this line we rae making a new line for more efficiency of our code
@@ -46,15 +63,25 @@ public class ClientHandler implements Runnable { // this class will handle the c
                     // usually when we write sth inside the buffer it won't happen immediately, and it may be lost in there, so we use from the flush method because we want to ensure ourselves that it will be written immediately
                     // why we have to ensure ourselves that the message is written immediately ? because we are sending messages inside an infinity loop, so we have to be sure the previous message positively is written
                 }
+            }catch (IOException e) {
+                closeAll(socket , bufferedWriter , bufferedReader);
             }
-        }catch (IOException e) {
-            closeAll(socket , bufferedWriter , bufferedReader);
         }
     }
-    public void closeAll(Socket socket , BufferedWriter bufferedWriter , BufferedReader bufferedReader) {
+    //------------------------------------------To Send Messages-------------------------------------------
 
+
+    //------------------------------------------To Remove Member-------------------------------------------
+    public void removeMember() {
         clientHandlers.remove(this);
         sendMessages(userName + "Left The Chat!!");
+    }
+    //------------------------------------------To Remove Member-------------------------------------------
+
+
+    //-----------------------------------------To Close EveryThing-------------------------------------------
+    public void closeAll(Socket socket , BufferedWriter bufferedWriter , BufferedReader bufferedReader) {
+        removeMember();
         try {
             if (socket != null) { //we have to check this always that they won't be null because if they were null and then w close them we will get a null pointer exception
                 socket.close();
@@ -69,6 +96,6 @@ public class ClientHandler implements Runnable { // this class will handle the c
             e.printStackTrace();
         }
     }
-
+    //-----------------------------------------To Close EveryThing-------------------------------------------
 
 }

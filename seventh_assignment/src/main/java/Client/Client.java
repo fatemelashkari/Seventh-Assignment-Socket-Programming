@@ -1,5 +1,6 @@
 package Client;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
@@ -16,8 +17,8 @@ public class Client {
         try {
             this.socket = socket;
             this.userName = userName;
-            bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); //I've talked about these things in the ClientHandler Class completely :)
-            bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+            this.bufferedReader = new BufferedReader(new InputStreamReader(socket.getInputStream())); //I've talked about these things in the ClientHandler Class completely :)
+            this.bufferedWriter = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         }catch (IOException e) {
             closeAll(socket , bufferedWriter , bufferedReader);
         }
@@ -45,6 +46,26 @@ public class Client {
     //-----------------------------------------To Send Messages-------------------------------------------
 
 
+    //-----------------------------------------To Wait For New Message-------------------------------------------
+    public void waiting() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String message;
+                while (socket.isConnected()) {
+                    try {
+                        message = bufferedReader.readLine();
+                        System.out.println(message);
+                    }catch (IOException e) {
+                        closeAll(socket , bufferedWriter , bufferedReader);
+                    }
+                }
+            }
+        }).start();
+    }
+    //-----------------------------------------To Wait For New Message-------------------------------------------
+
+
     //-----------------------------------------To Close EveryThing-------------------------------------------
     public void closeAll(Socket socket , BufferedWriter bufferedWriter , BufferedReader bufferedReader) {
         try {
@@ -64,24 +85,11 @@ public class Client {
     //-----------------------------------------To Close EveryThing-------------------------------------------
 
 
-    //-----------------------------------------To Wait For New Message-------------------------------------------
-    public void waiting() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String message;
-                while (socket.isConnected()) {
-                    try {
-                        message = bufferedReader.readLine();
-                        System.out.println(message);
-                    }catch (IOException e) {
-                        closeAll(socket , bufferedWriter , bufferedReader);
-                    }
-                }
-            }
-        }).start();
+    //-------------------------------------------------Menu----------------------------------------------------
+    public void menu() {
+
     }
-    //-----------------------------------------To Wait For New Message-------------------------------------------
+    //-------------------------------------------------Menu----------------------------------------------------
 
 
     public static void main(String[] args) throws IOException {

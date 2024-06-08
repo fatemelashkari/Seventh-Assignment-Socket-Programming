@@ -13,22 +13,33 @@ import java.util.concurrent.Executors;
  */
 public class Server {
     private ServerSocket serverSocket;
-    public Server(ServerSocket serverSocket) { //the constructor
+
+    //-----------------------------------------Constructor-------------------------------------------
+    public Server(ServerSocket serverSocket) {
+
         this.serverSocket = serverSocket;
     }
+    //-----------------------------------------Constructor-------------------------------------------
 
+
+    //--------------------------------------To Start The Server-------------------------------------------
     public void runServer() {
         try{
-            Socket socket = serverSocket.accept(); // this is waiting for new connection from clients
-            System.out.println("A New Client Connected Successfully!!"); // because if the code pass the last line(serversocket.accept) it means that a new client has connected to the server
-            ClientHandler clientHandler = new ClientHandler(socket);
-            Thread thread = new Thread(clientHandler);
-            thread.start();
+            while (!serverSocket.isClosed()) {
+                Socket socket = serverSocket.accept(); // this is waiting for new connection from clients
+                System.out.println("A New Client Connected Successfully!!"); // because if the code pass the last line(serversocket.accept) it means that a new client has connected to the server
+                ClientHandler clientHandler = new ClientHandler(socket);
+                Thread thread = new Thread(clientHandler);
+                thread.start();
+            }
         }catch(IOException e) {
             close(serverSocket);
         }
     }
+    //--------------------------------------------To Start The Server-------------------------------------------
 
+
+    //-----------------------------------------To Close The Server Socket-------------------------------------------
     public void close(ServerSocket serverSocket) {
         try {
             if (serverSocket != null) { //we have to check if the server socket is null or not  because if the server socket was null when we want to close it we will get a null pointer error for this reason we put this part inside the try-catch block
@@ -38,6 +49,7 @@ public class Server {
             e.printStackTrace();
         }
     }
+    //-----------------------------------------To Close The Server Socket-------------------------------------------
 
     public static void main(String[] args) throws IOException {
 
